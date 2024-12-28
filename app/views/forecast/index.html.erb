@@ -1,27 +1,31 @@
-<h1 class="fw-light">Weather Forecast</h1>
-<p class="lead text-muted" data-cy="instructions">Enter a US street address or zip code to get the weather forecast.</p>
-<%= form_tag forecast_index_path, data: { controller: "places", action: "google-maps-callback@window->places.initializeAutocomplete" }, method: :get do %>
-  <%= text_field_tag :address, nil, data: { places_target: "field", action: 'submit->places.submit', cy: "google-places-autocomplete" }, class: "input-group mb-3" %>
-  <%= hidden_field_tag :zip_code, nil, data: { cy: "zip-code" } %>
-  <%= submit_tag "Get Forecast", class: "btn btn-primary my-2", data: { cy: "submit-forecast" } %>
-<% end %>
+<div id="weather-forecast-form">
+  <h1 class="fw-light">Weather Forecast</h1>
+  <p class="lead text-muted" data-cy="instructions">Enter a US street address or zip code to get the weather forecast.</p>
+  <%= form_tag forecast_index_path, method: :get do %>
+    <%= text_field_tag :address, nil, data: { places_target: "field", cy: "google-places-autocomplete" }, class: "input-group mb-3", id: "google-places-autocomplete" %>
+    <%= hidden_field_tag :zip_code, nil, data: { cy: "zip-code" } %>
+    <%= submit_tag "Get Forecast", class: "btn btn-primary my-2", id: 'get-forecast-button', data: { cy: "submit-forecast" } %>
+  <% end %>
+</div>
 
 <% if @weather_result %>
-  <div class="p-2 border-primary-subtle rounded-4 weather-result">
-    <p data-cy="temperature-result">In <%= @weather_result.zip_code %>, it is currently <%= @weather_result.current_temperature %>F.</p>
-  </div>
-  <p class="cache-hit-<%= @weather_result.cache_hit %>" data-cy="cache-result">Cache <%= @weather_result.cache_hit ? "hit" : "miss" %></p>
-  <div class="row gx-3 gy-3">
-    <% @weather_result.forecasts.each do |forecast| %>
-      <div class="col-sm-6">
-        <div class="card forecast-card" data-cy="forecast-card">
-          <div class="card-body">
-            <h5 class="card-title"><%= forecast.date %></h5>
-            <p class="card-text">High: <%= forecast.high %>F</p>
-            <p class="card-text">Low: <%= forecast.low %>F</p>
+  <div id="weather-result-container">
+    <div class="p-2 border-primary-subtle rounded-4 weather-result">
+      <p data-cy="temperature-result">In <%= @weather_result.zip_code %>, it is currently <%= @weather_result.current_temperature %>F.</p>
+    </div>
+    <p class="cache-hit-<%= @weather_result.cache_hit %>" data-cy="cache-result">Cache <%= @weather_result.cache_hit ? "hit" : "miss" %></p>
+    <div class="row gx-3 gy-3">
+      <% @weather_result.forecasts.each do |forecast| %>
+        <div class="col-sm-6">
+          <div class="card forecast-card" data-cy="forecast-card">
+            <div class="card-body">
+              <h5 class="card-title"><%= forecast.date %></h5>
+              <p class="card-text">High: <%= forecast.high %>F</p>
+              <p class="card-text">Low: <%= forecast.low %>F</p>
+            </div>
           </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
 <% end %>
