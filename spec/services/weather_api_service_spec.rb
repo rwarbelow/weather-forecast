@@ -8,7 +8,7 @@ RSpec.describe WeatherApiService do
   let(:expected_current_temp) { rand(mintemp_f..maxtemp_f) }
   let(:raw_forecast_data) { [{ "date": today, "day": { "maxtemp_f": maxtemp_f, "mintemp_f": mintemp_f}}]}
   let(:cache_key) { "weather_data_#{zip_code}"}
-  let(:forecast_url) { URI("#{WeatherApiService::BASE_URL}/forecast.json?key=#{ENV['WEATHER_API_KEY']}&days=5&q=#{zip_code}") }
+  let(:forecast_url) { URI("#{WeatherApiService::BASE_URL}/forecast.json?key=#{ENV['WEATHER_API_KEY']}&days=4&q=#{zip_code}") }
   let(:current_temp_url) { URI("#{WeatherApiService::BASE_URL}/current.json?key=#{ENV['WEATHER_API_KEY']}&q=#{zip_code}") }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
   
