@@ -1,0 +1,18 @@
+  // Import Bootstrap v5  
+@import "~bootstrap/scss/bootstrap";  
+
+.weather-result {
+  background-color: $cyan-100;
+}
+
+.forecast-card {
+  border: 5px solid $teal-100;
+}
+
+.cache-hit-false {
+  color: red;
+}
+
+.cache-hit-true {
+  color: green;
+}

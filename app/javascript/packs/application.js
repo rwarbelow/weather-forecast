@@ -12,3 +12,14 @@ import "bootstrap"
 Rails.start()
 Turbolinks.start()
 ActiveStorage.start()
+
+import "controllers"
+
+window.initMap = function (...args) {
+  const event = new CustomEvent('google-maps-callback', {
+    bubbles: true,
+    cancelable: true,
+    detail: args,
+  });
+  window.dispatchEvent(event);
+};

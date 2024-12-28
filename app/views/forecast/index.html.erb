@@ -1,0 +1,27 @@
+<h1 class="fw-light">Weather Forecast</h1>
+<p class="lead text-muted">Enter an address to get the weather forecast.</p>
+<%= form_tag forecast_index_path, data: { controller: "places", action: "google-maps-callback@window->places.initializeAutocomplete" }, method: :get do %>
+  <%= text_field_tag(:address, nil, data: { places_target: "field", action: 'submit->places.submit' }, class: "input-group mb-3") %>
+  <%= hidden_field_tag(:zip_code) %>
+  <%= submit_tag "Get Forecast", class: "btn btn-primary my-2" %>
+<% end %>
+
+<% if @weather_result %>
+  <div class="p-2 border-primary-subtle rounded-4 weather-result">
+    <p class="">In <%= @weather_result.zip_code %>, it is curently <%= @weather_result.current_temperature %>F.</p>
+  </div>
+  <p class="cache-hit-<%= @weather_result.cache_hit %>">Cache <%= @weather_result.cache_hit ? "hit" : "miss" %></p>
+  <div class="row gx-3 gy-3">
+    <% @weather_result.forecasts.each do |forecast| %>
+      <div class="col-sm-6">
+        <div class="card forecast-card">
+          <div class="card-body">
+            <h5 class="card-title"><%= forecast.date %></h5>
+            <p class="card-text">High: <%= forecast.high %>F</p>
+            <p class="card-text">Low: <%= forecast.low %>F</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
