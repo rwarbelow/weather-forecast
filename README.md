@@ -70,3 +70,4 @@ The `WeatherApiService` is a service wrapping the Weather API. It is initialized
 * Extract functionality from `index` method in controller and use `create` and `show` during form submission and rendering
 * Extract logic from `index.html.erb` and move to controller after implementing previous step
 * Potentially extract pieces of html into partials (particularly error html)
+* Potentially switch out jQuery for a [Stimulus JS](https://github.com/rwarbelow/weather-forecast/commit/0e5ba1ce1a8dd11318c2208d9c42fc8cd395a339) controller. I originally used a Stimulus controller (see [this commit](https://github.com/rwarbelow/weather-forecast/commit/0e5ba1ce1a8dd11318c2208d9c42fc8cd395a339)) given that it pairs nicely with Rails, but removed it in favor of trying out how jQuery would work in this app. If the functionality were to grow, I would lean toward using Stimulus again.
