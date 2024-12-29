@@ -1,16 +1,18 @@
 describe('Testing Weather Forecast page (app root)', () => {  
   const randomAddressNumber = Math.floor(Math.random(1) * 9999);;
-  const locationNoZipCode = "Fairbanks, AK"
-  const instructionText = "Enter a US street address or zip code to get the weather forecast.";
+  const locationNoZipCode = 'Fairbanks, AK';
+  const instructionText = 'Enter a US street address or zip code to get the weather forecast.';
+  const zipCodeWithNoForecastData = '67000';
   const errorMessageText = 'This input does not have an associated zip code.';
+  const dataNotAvailableMessage = 'Current temperature is not available for';
   const errorMessageId = '#error-message';
-  const locationInput = "[data-cy=google-places-autocomplete]";
-  const zipcodeInput = "[data-cy=zip-code]";
-  const submitButton = "[data-cy=submit-forecast]";
-  const forecastCard = "[data-cy=forecast-card]";
-  const tempResult = "[data-cy=temperature-result]";
-  const cacheResult = "[data-cy=cache-result]";
-  const instructions = "[data-cy=instructions]";
+  const locationInput = '[data-cy=google-places-autocomplete]';
+  const zipcodeInput = '[data-cy=zip-code]';
+  const submitButton = '[data-cy=submit-forecast]';
+  const forecastCard = '[data-cy=forecast-card]';
+  const tempResult = '[data-cy=temperature-result]';
+  const cacheResult = '[data-cy=cache-result]';
+  const instructions = '[data-cy=instructions]';
 
   beforeEach(() => {  
     cy.visit('/')
@@ -56,5 +58,19 @@ describe('Testing Weather Forecast page (app root)', () => {
     // Check that cache hit indicator exists after submitting
     cy.get(submitButton).click()
     cy.get(cacheResult).should('include.text', 'Cache hit');
+  })
+
+  it('shows message when forecast data is not avaialble for zip code', () => {
+    // Type valid zip code and submit
+    cy.get(locationInput).type(zipCodeWithNoForecastData);
+    cy.get('.pac-item', { timeout: 10000 }).should('be.visible').first().click();
+
+    cy.get(zipcodeInput).should('have.value', zipCodeWithNoForecastData);
+
+    cy.get(submitButton).click()
+
+    // Assert data not available message shows and there are no forecast cards
+    cy.get(tempResult).should('include.text', `${dataNotAvailableMessage} ${zipCodeWithNoForecastData}`)
+    cy.get('[data-cy=forecast-card]').should('not.exist');
   })
 })  

@@ -11,7 +11,11 @@
 <% if @weather_result %>
   <div id="weather-result-container">
     <div class="p-2 border-primary-subtle rounded-4 weather-result">
-      <p data-cy="temperature-result">In <%= @weather_result.zip_code %>, it is currently <%= @weather_result.current_temperature %>F.</p>
+      <% if @weather_result.current_temperature %>
+        <p data-cy="temperature-result">In <%= @weather_result.zip_code %>, it is currently <%= @weather_result.current_temperature %>F.</p>
+      <% else %>
+        <p data-cy="temperature-result">Current temperature is not available for <%= @weather_result.zip_code %>.</p>
+      <% end %>
     </div>
     <p class="cache-hit-<%= @weather_result.cache_hit %>" data-cy="cache-result">Cache <%= @weather_result.cache_hit ? "hit" : "miss" %></p>
     <div class="row gx-3 gy-3">

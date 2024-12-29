@@ -31,11 +31,11 @@ class WeatherApiService
   end
 
   def get_current_temperature
-    make_request(api_name: "current").dig("current", "temp_f")
+    make_request(api_name: "current").dig("current", "temp_f") || nil
   end
 
   def get_forecasts(days: 4)
-    forecast_data = make_request(api_name: "forecast", query_params: { days: days }).dig("forecast", "forecastday")
+    forecast_data = make_request(api_name: "forecast", query_params: { days: days }).dig("forecast", "forecastday") || []
     make_daily_forecasts(forecast_data)
   end
 

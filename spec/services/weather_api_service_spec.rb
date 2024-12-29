@@ -11,16 +11,54 @@ RSpec.describe WeatherApiService do
   let(:forecast_url) { URI("#{WeatherApiService::BASE_URL}/forecast.json?key=#{ENV['WEATHER_API_KEY']}&days=4&q=#{zip_code}") }
   let(:current_temp_url) { URI("#{WeatherApiService::BASE_URL}/current.json?key=#{ENV['WEATHER_API_KEY']}&q=#{zip_code}") }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
-  
-  before do
-    allow(Net::HTTP).to receive(:get).with(current_temp_url).and_return(JSON.generate({ current: { temp_f: expected_current_temp }}))
-    allow(Net::HTTP).to receive(:get).with(forecast_url).and_return(JSON.generate({ forecast: { forecastday: raw_forecast_data }}))
-    allow(Rails).to receive(:cache).and_return(memory_store)
-  end
 
   describe "#weather_result" do
-    context "when result is not found in cache" do
-      it "returns a WeatherResult object with the correct attributes" do
+    describe "when data is returned from API" do
+      before do
+        allow(Net::HTTP).to receive(:get).with(current_temp_url).and_return(JSON.generate({ current: { temp_f: expected_current_temp }}))
+        allow(Net::HTTP).to receive(:get).with(forecast_url).and_return(JSON.generate({ forecast: { forecastday: raw_forecast_data }}))
+        allow(Rails).to receive(:cache).and_return(memory_store)
+      end
+      context "when result is not found in cache" do
+        it "returns a WeatherResult object with the correct attributes" do
+          allow(Rails.cache).to receive(:fetch)
+            .with(cache_key, expires_in: WeatherApiService::CACHE_EXPIRATION).and_yield()
+
+          service = described_class.new(zip_code)
+          result = service.weather_result
+
+          expect(result).to be_a(WeatherResult)
+          expect(result.cache_hit).to be(false)
+          expect(result.current_temperature).to eq(expected_current_temp)
+          expect(result.forecasts.count).to eq(raw_forecast_data.count)
+          expect(result.forecasts).to all(be_a(DailyForecast))
+        end
+      end
+
+      context "when result is found in cache" do
+        it "returns a WeatherResult object with the correct attributes" do
+          allow(Rails.cache).to receive(:fetch)
+            .with(cache_key, expires_in: WeatherApiService::CACHE_EXPIRATION)
+            .and_return({ current_temperature: expected_current_temp, forecasts: [] })
+
+          service = described_class.new(zip_code)
+          result = service.weather_result
+
+          expect(result).to be_a(WeatherResult)
+          expect(result.cache_hit).to be(true)
+          expect(result.current_temperature).to eq(expected_current_temp)
+          expect(result.forecasts).to be_empty
+        end
+      end
+    end
+    describe "when empty data is returned from API" do
+      before do
+        allow(Net::HTTP).to receive(:get).with(current_temp_url).and_return(JSON.generate({}))
+        allow(Net::HTTP).to receive(:get).with(forecast_url).and_return(JSON.generate({}))
+        allow(Rails).to receive(:cache).and_return(memory_store)
+      end
+
+      it "returns empty values in WeatherResult object" do
         allow(Rails.cache).to receive(:fetch)
           .with(cache_key, expires_in: WeatherApiService::CACHE_EXPIRATION).and_yield()
 
@@ -28,26 +66,8 @@ RSpec.describe WeatherApiService do
         result = service.weather_result
 
         expect(result).to be_a(WeatherResult)
-        expect(result.cache_hit).to be(false)
-        expect(result.current_temperature).to eq(expected_current_temp)
-        expect(result.forecasts.count).to eq(raw_forecast_data.count)
-        expect(result.forecasts).to all(be_a(DailyForecast))
-      end
-    end
-
-    context "when result is found in cache" do
-      it "returns a WeatherResult object with the correct attributes" do
-        allow(Rails.cache).to receive(:fetch)
-          .with(cache_key, expires_in: WeatherApiService::CACHE_EXPIRATION)
-          .and_return({ current_temperature: expected_current_temp, forecasts: [] })
-
-        service = described_class.new(zip_code)
-        result = service.weather_result
-
-        expect(result).to be_a(WeatherResult)
-        expect(result.cache_hit).to be(true)
-        expect(result.current_temperature).to eq(expected_current_temp)
-        expect(result.forecasts).to be_empty
+        expect(result.current_temperature).to eq(nil)
+        expect(result.forecasts).to eq([])
       end
     end
   end
